@@ -8,12 +8,18 @@ import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.edupad.tasks.R
+import com.edupad.tasks.models.Task
 import com.edupad.tasks.views.tasks.TasksAdapter
 import kotlinx.android.synthetic.main.main_fragment_layout.view.*
 
 class HeaderFragment: Fragment() {
-    private val tasks = arrayOf("Task 1", "Task 2", "Task 3")
-    private val viewAdapter: RecyclerView.Adapter<*> = TasksAdapter(tasks)
+    private val tasks = mutableListOf(
+        Task(id = "id_1", title = "Task 1", description = "description 1"),
+        Task(id = "id_2", title = "Task 2"),
+        Task(id="id_3", title = "Task 3")
+    )
+//     arrayOf(Task("Task 1"), Task("Task 2"), Task("Task 3"))
+    private val viewAdapter: RecyclerView.Adapter<*> = TasksAdapter(tasks) { task : Task -> deleteItem(task) }
     private val viewManager: RecyclerView.LayoutManager = LinearLayoutManager(activity)
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
@@ -32,5 +38,11 @@ class HeaderFragment: Fragment() {
         }
 
         return view
+    }
+
+    private fun deleteItem(task: Task) {
+        val index = tasks.indexOf(task)
+        tasks.remove(task)
+        viewAdapter.notifyItemRemoved(index)
     }
 }
