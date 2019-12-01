@@ -8,7 +8,7 @@ import com.edupad.tasks.R
 import com.edupad.tasks.models.Task
 import kotlinx.android.synthetic.main.task_view_holder.view.*
 
-class TasksAdapter(private val tasks: MutableList<Task>, private val onDeleteClickListener: (Task) -> Unit) : RecyclerView.Adapter<TasksAdapter.TaskViewHolder>() {
+class TasksAdapter(private val tasks: MutableList<Task>?, private val onDeleteClickListener: (Task) -> Unit) : RecyclerView.Adapter<TasksAdapter.TaskViewHolder>() {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TaskViewHolder {
         val view = LayoutInflater.from(parent.context)
             .inflate(R.layout.task_view_holder, parent, false)
@@ -16,10 +16,12 @@ class TasksAdapter(private val tasks: MutableList<Task>, private val onDeleteCli
         return TaskViewHolder(view)
     }
 
-    override fun getItemCount() = tasks.size
+    override fun getItemCount() = tasks?.size ?: 0
 
     override fun onBindViewHolder(holder: TaskViewHolder, position: Int) {
-        holder.setup(tasks[position])
+        tasks?.let {
+            holder.setup(tasks[position])
+        }
     }
 
     inner class TaskViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {

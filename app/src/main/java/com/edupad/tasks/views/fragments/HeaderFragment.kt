@@ -5,16 +5,19 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.edupad.tasks.R
-import com.edupad.tasks.models.Task
-import com.edupad.tasks.models.TaskViewModel
-import com.edupad.tasks.views.tasks.TasksAdapter
+import com.edupad.tasks.models.TasksViewModel
 import kotlinx.android.synthetic.main.main_fragment_layout.view.*
 
 class HeaderFragment: Fragment() {
-    private val viewAdapter:TasksAdapter = TasksAdapter(TaskViewModel.tasks) { task : Task -> deleteItem(task) }
+    private val tasksViewModel by lazy {
+        ViewModelProviders.of(this).get(TasksViewModel::class.java)
+    }
+
+
     private val viewManager: RecyclerView.LayoutManager = LinearLayoutManager(activity)
     
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
@@ -29,14 +32,18 @@ class HeaderFragment: Fragment() {
             layoutManager = viewManager
 
             // specify an viewAdapter (see also next example)
-            adapter = viewAdapter
+            adapter = tasksViewModel.tasksAdapter
         }
 
         return view
     }
 
-    private fun deleteItem(task: Task) {
-        val index = TaskViewModel.removeTask(task)
-        viewAdapter.notifyItemRemoved(index)
+    override fun onResume() {
+        super.onResume()
+        fetchTasks()
+    }
+
+    private fun fetchTasks() {
+        tasksViewModel.loadTasks(this)
     }
 }
