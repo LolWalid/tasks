@@ -4,8 +4,10 @@ import android.util.Log
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.edupad.tasks.services.TasksRepository
 import com.edupad.tasks.views.tasks.TasksAdapter
+import kotlinx.coroutines.launch
 
 class TasksViewModel: ViewModel() {
     private val tasks = mutableListOf<Task>()
@@ -13,7 +15,7 @@ class TasksViewModel: ViewModel() {
 
     private val tasksRepository = TasksRepository()
 
-    fun loadTasks(lifecycleOwner: LifecycleOwner): List<Task>? {
+    fun loadTasks(lifecycleOwner: LifecycleOwner) {
         tasksRepository.getTasks().observe(lifecycleOwner, Observer {
             Log.e("it", it.toString())
             if (it != null) {
@@ -22,12 +24,16 @@ class TasksViewModel: ViewModel() {
                 tasksAdapter.notifyDataSetChanged()
             }
         })
-        return tasks
     }
 
     private fun deleteItem(task: Task) {
-        val index = removeTask(task)
-        tasksAdapter.notifyItemRemoved(index)
+        viewModelScope.launch {
+            val success = tasksRepository.deleteTask(task.id)
+            if (success) {
+                val index = removeTask(task)
+                tasksAdapter.notifyItemRemoved(index)
+            }
+        }
     }
 
     private fun removeTask(task: Task): Int {
