@@ -19,11 +19,11 @@ class TasksAdapter(private val tasks: MutableList<Task>, private val onDeleteCli
     override fun getItemCount() = tasks.size
 
     override fun onBindViewHolder(holder: TaskViewHolder, position: Int) {
-        holder.setup(tasks[position], onDeleteClickListener)
+        holder.setup(tasks[position])
     }
 
-    class TaskViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        fun setup(task: Task, onDeleteClickListener: (Task) -> Unit) {
+    inner class TaskViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        fun setup(task: Task) {
             itemView.task_title.text = task.title
             itemView.delete_button.setOnClickListener { onDeleteClickListener(task)}
         }
