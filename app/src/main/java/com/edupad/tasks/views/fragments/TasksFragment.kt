@@ -10,16 +10,18 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.edupad.tasks.R
 import com.edupad.tasks.models.TasksViewModel
+import com.edupad.tasks.services.TaskApi
 import kotlinx.android.synthetic.main.main_fragment_layout.view.*
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 
-class HeaderFragment: Fragment() {
+class TasksFragment: Fragment() {
     private val tasksViewModel by lazy {
         ViewModelProviders.of(this).get(TasksViewModel::class.java)
     }
 
-
     private val viewManager: RecyclerView.LayoutManager = LinearLayoutManager(activity)
-    
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
         val view = inflater.inflate(R.layout.main_fragment_layout, container, false)
@@ -41,9 +43,16 @@ class HeaderFragment: Fragment() {
     override fun onResume() {
         super.onResume()
         fetchTasks()
+        fetchUserInfo()
     }
 
     private fun fetchTasks() {
         tasksViewModel.loadTasks(this)
+    }
+
+    private fun fetchUserInfo() {
+        GlobalScope.launch {
+            TaskApi.userService.getInfo()
+        }
     }
 }

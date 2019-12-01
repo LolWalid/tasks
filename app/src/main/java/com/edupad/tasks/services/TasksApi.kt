@@ -1,6 +1,7 @@
 package com.edupad.tasks.services
 
 import com.edupad.tasks.models.Task
+import com.edupad.tasks.models.UserInfo
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import okhttp3.OkHttpClient
@@ -35,9 +36,15 @@ object TaskApi {
         .build()
 
     val tasksService: TasksService by lazy { retrofit.create(TasksService::class.java) }
+    val userService: UserService by lazy { retrofit.create(UserService::class.java) }
 }
 
 interface TasksService {
     @GET("tasks")
     suspend fun getTasks(): Response<List<Task>>
+}
+
+interface UserService {
+    @GET("info")
+    suspend fun getInfo(): Response<UserInfo>
 }
