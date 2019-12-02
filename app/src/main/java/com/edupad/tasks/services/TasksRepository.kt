@@ -1,10 +1,7 @@
 package com.edupad.tasks.services
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
+import android.util.Log
 import com.edupad.tasks.models.Task
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
 
 class TasksRepository {
     private val tasksService = TaskApi.tasksService
@@ -14,16 +11,11 @@ class TasksRepository {
         return tasksResponse.isSuccessful
     }
 
-    fun getTasks(): LiveData<List<Task>?> {
-        val tasks =  MutableLiveData<List<Task>?>()
-        GlobalScope.launch {
-            tasks.postValue(loadTasks())
-        }
-        return tasks
-    }
-
-    private suspend fun loadTasks(): List<Task>? {
+    suspend fun loadTasks(): List<Task>? {
+        Log.e("TasksRepository", "loadTasks")
         val tasksResponse = tasksService.getTasks()
+
+        Log.e("TasksRepository", "tasksResponse")
         return if (tasksResponse.isSuccessful) tasksResponse.body() else null
     }
 }

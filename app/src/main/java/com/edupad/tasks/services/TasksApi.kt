@@ -2,6 +2,7 @@ package com.edupad.tasks.services
 
 import com.edupad.tasks.models.Task
 import com.edupad.tasks.models.UserInfo
+import com.edupad.tasks.models.UserInfoForm
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import okhttp3.OkHttpClient
@@ -26,6 +27,7 @@ object TaskApi {
                     .build()
                 chain.proceed(newRequest)
             }
+            .addInterceptor(LoggingInterceptor())
             .build()
     }
 
@@ -46,14 +48,20 @@ interface TasksService {
     @DELETE("tasks/{id}")
     suspend fun deleteTask(@Path("id") id: String): Response<String>
 
+    @FormUrlEncoded
     @POST("tasks")
-    suspend fun createTask(@Body task: Task): Response<Task>
+    suspend fun createTask(@Field("task") task: Task): Response<Task>
 
+    @FormUrlEncoded
     @PATCH("tasks/{id}")
-    suspend fun updateTask(@Body task: Task): Response<Task>
+    suspend fun updateTask(@Field("task") task: Task): Response<Task>
 }
 
 interface UserService {
-    @GET("info")
+    @GET("users/info")
     suspend fun getInfo(): Response<UserInfo>
+
+    @Multipart
+    @PATCH("users")
+    suspend fun update(@Part("user") form: UserInfoForm): Response<String>
 }

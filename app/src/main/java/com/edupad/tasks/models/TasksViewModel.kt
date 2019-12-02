@@ -1,8 +1,6 @@
 package com.edupad.tasks.models
 
 import android.util.Log
-import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.edupad.tasks.services.TasksRepository
@@ -15,15 +13,17 @@ class TasksViewModel: ViewModel() {
 
     private val tasksRepository = TasksRepository()
 
-    fun loadTasks(lifecycleOwner: LifecycleOwner) {
-        tasksRepository.getTasks().observe(lifecycleOwner, Observer {
-            Log.e("it", it.toString())
-            if (it != null) {
+    fun loadTasks() {
+        Log.e("TasksViewModel", "loadTasks")
+        viewModelScope.launch {
+            val serverTasks = tasksRepository.loadTasks()
+            Log.e("TasksViewModel", serverTasks.toString())
+            serverTasks?.let {
                 tasks.clear()
                 tasks.addAll(it)
                 tasksAdapter.notifyDataSetChanged()
             }
-        })
+        }
     }
 
     private fun deleteItem(task: Task) {

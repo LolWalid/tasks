@@ -10,10 +10,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.edupad.tasks.R
 import com.edupad.tasks.models.TasksViewModel
-import com.edupad.tasks.services.TaskApi
 import kotlinx.android.synthetic.main.main_fragment_layout.view.*
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
 
 class TasksFragment: Fragment() {
     private val tasksViewModel by lazy {
@@ -43,16 +40,9 @@ class TasksFragment: Fragment() {
     override fun onResume() {
         super.onResume()
         fetchTasks()
-        fetchUserInfo()
     }
 
     private fun fetchTasks() {
-        tasksViewModel.loadTasks(this)
-    }
-
-    private fun fetchUserInfo() {
-        GlobalScope.launch {
-            TaskApi.userService.getInfo()
-        }
+        tasksViewModel.loadTasks()
     }
 }

@@ -13,8 +13,7 @@ class MainActivity : FragmentActivity() {
         setContentView(R.layout.activity_main)
 
         fab.setOnClickListener {
-            val intent = Intent(MainActivity@this, MainActivity::class.java)
-            intent.putExtra("test", "1")
+            val intent = Intent(MainActivity@this, UserActivity::class.java)
             startActivity(intent)
         }
     }
