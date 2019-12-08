@@ -5,17 +5,19 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.os.Bundle
-import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import com.bumptech.glide.Glide
 import com.edupad.tasks.R
-import com.edupad.tasks.models.UserInfoForm
 import com.edupad.tasks.services.TaskApi
 import kotlinx.android.synthetic.main.activity_user.*
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import okhttp3.MediaType
+import okhttp3.MultipartBody
+import okhttp3.RequestBody
 import java.io.File
 import java.io.FileNotFoundException
 import java.io.FileOutputStream
@@ -25,7 +27,7 @@ import java.io.IOException
 class UserActivity: AppCompatActivity() {
     companion object {
         const val CAMERA_CODE = 1000
-        const val CAMERA_REQUEST_CODE = 1001
+        const val CAMERA_REQUEST_CODE = 2001
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -63,7 +65,7 @@ class UserActivity: AppCompatActivity() {
         if (requestCode == CAMERA_CODE && grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
             openCamera()
         } else {
-            Toast.makeText(this, "We need access to your storage to upload a photo :'(", Toast.LENGTH_LONG)
+            Toast.makeText(this, "We need access to your camera to take picture :'(", Toast.LENGTH_LONG)
         }
     }
 
@@ -79,8 +81,7 @@ class UserActivity: AppCompatActivity() {
         }
     }
 
-    private fun handleData(data: Intent?) {
-        val image = data?.extras?.get("data") as? Bitmap
+    private fun imageToBody(image: Bitmap?): MultipartBody.Part? {
         val f = File(cacheDir, "tmpfile.jpg")
         f.createNewFile()
         try {
@@ -93,12 +94,25 @@ class UserActivity: AppCompatActivity() {
             e.printStackTrace()
         } catch (e: IOException) {
             e.printStackTrace()
+
         }
 
-        Log.e("file", f.length().toString())
+        val body = RequestBody.create(MediaType.parse("image/png"), f)
+        return MultipartBody.Part.createFormData("avatar", f.path ,body)
+    }
 
-        GlobalScope.launch {
-            TaskApi.userService.update(UserInfoForm(f.path))
+    private fun handleData(data: Intent?) {
+        val image = data?.extras?.get("data") as? Bitmap
+
+        val imageBody = imageToBody(image)
+
+        Glide.with(this).load(image).into(avatar_view)
+
+        // send Request to update User Avatar in Server
+        imageBody?.let {
+            GlobalScope.launch {
+                TaskApi.userService.updateAvatar(it)
+            }
         }
     }
 }

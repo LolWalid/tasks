@@ -1,16 +1,26 @@
 package com.edupad.tasks.views.fragments
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.edupad.tasks.R
 import com.edupad.tasks.models.TasksViewModel
+import com.edupad.tasks.models.UserInfo
+import com.edupad.tasks.services.TaskApi
+import kotlinx.android.synthetic.main.main_fragment_layout.*
 import kotlinx.android.synthetic.main.main_fragment_layout.view.*
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 
 class TasksFragment: Fragment() {
     private val tasksViewModel by lazy {
@@ -37,9 +47,34 @@ class TasksFragment: Fragment() {
         return view
     }
 
+    private fun downloadImage() {
+        getInfo().observe(this, Observer {
+            Glide.with(this).load(it.avatar).into(image_view)
+        })
+    }
+
+    private fun getInfo(): LiveData<UserInfo> {
+        val userInfo = MutableLiveData<UserInfo>()
+        GlobalScope.launch {
+            val response = TaskApi.userService.getInfo()
+            Log.e("downloadImage", response.body().toString())
+            if (response.isSuccessful) {
+                response.body()?.let {
+                    userInfo.postValue(it)
+
+                    val u = UserInfo(it.email, it.firstname + "1", it.lastname, it.avatar)
+                    val response2 = TaskApi.userService.update(u)
+                }
+            }
+
+        }
+        return userInfo
+    }
+
     override fun onResume() {
         super.onResume()
         fetchTasks()
+        downloadImage()
     }
 
     private fun fetchTasks() {

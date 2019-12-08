@@ -2,9 +2,9 @@ package com.edupad.tasks.services
 
 import com.edupad.tasks.models.Task
 import com.edupad.tasks.models.UserInfo
-import com.edupad.tasks.models.UserInfoForm
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
+import okhttp3.MultipartBody
 import okhttp3.OkHttpClient
 import retrofit2.Response
 import retrofit2.Retrofit
@@ -24,10 +24,11 @@ object TaskApi {
             .addInterceptor { chain ->
                 val newRequest = chain.request().newBuilder()
                     .addHeader("Authorization", "Bearer $TOKEN")
+                    .addHeader("Content-Type", "application/json")
+                    .addHeader("Accept", "application/json")
                     .build()
                 chain.proceed(newRequest)
             }
-            .addInterceptor(LoggingInterceptor())
             .build()
     }
 
@@ -48,13 +49,11 @@ interface TasksService {
     @DELETE("tasks/{id}")
     suspend fun deleteTask(@Path("id") id: String): Response<String>
 
-    @FormUrlEncoded
     @POST("tasks")
-    suspend fun createTask(@Field("task") task: Task): Response<Task>
+    suspend fun createTask(@Body task: Task): Response<Task>
 
-    @FormUrlEncoded
     @PATCH("tasks/{id}")
-    suspend fun updateTask(@Field("task") task: Task): Response<Task>
+    suspend fun updateTask(@Body task: Task): Response<Task>
 }
 
 interface UserService {
@@ -62,6 +61,9 @@ interface UserService {
     suspend fun getInfo(): Response<UserInfo>
 
     @Multipart
+    @PATCH("users/update_avatar")
+    suspend fun updateAvatar(@Part avatar: MultipartBody.Part): Response<UserInfo>
+
     @PATCH("users")
-    suspend fun update(@Part("user") form: UserInfoForm): Response<String>
+    suspend fun update(@Body user: UserInfo): Response<UserInfo>
 }
