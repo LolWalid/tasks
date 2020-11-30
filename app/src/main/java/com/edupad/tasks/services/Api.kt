@@ -1,7 +1,10 @@
 package com.edupad.tasks.services
 
+import android.content.Context
 import com.edupad.tasks.models.Task
+import com.edupad.tasks.models.Token
 import com.edupad.tasks.models.UserInfo
+import com.edupad.tasks.models.UserLogin
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import okhttp3.MultipartBody
@@ -11,9 +14,7 @@ import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
 import retrofit2.http.*
 
-object TaskApi {
-    private const val BASE_URL = "https://android-tasks-api.herokuapp.com/api/"
-    private const val TOKEN = "eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjoxLCJleHAiOjE2MDY4Mjc4MzN9.n43vapilYMJw-9dO43tMKqoDG_yq71MN08LLaxbAfJE"
+class Api(private val context: Context) {
 
     private val moshi = Moshi.Builder()
         .add(KotlinJsonAdapterFactory())
@@ -23,12 +24,13 @@ object TaskApi {
         OkHttpClient.Builder()
             .addInterceptor { chain ->
                 val newRequest = chain.request().newBuilder()
-                    .addHeader("Authorization", "Bearer $TOKEN")
+                    .addHeader("Authorization", "Bearer ${token()}")
                     .addHeader("Content-Type", "application/json")
                     .addHeader("Accept", "application/json")
                     .build()
                 chain.proceed(newRequest)
             }
+            .addInterceptor(LoggingInterceptor())
             .build()
     }
 
@@ -40,6 +42,14 @@ object TaskApi {
 
     val tasksService: TasksService by lazy { retrofit.create(TasksService::class.java) }
     val userService: UserService by lazy { retrofit.create(UserService::class.java) }
+
+    private fun token() =
+        context.getSharedPreferences("tasks_preferences", Context.MODE_PRIVATE).getString("JWT_TOKEN", "") ?: ""
+
+    companion object {
+        private const val BASE_URL = "https://android-tasks-api.herokuapp.com/api/"
+        lateinit var INSTANCE: Api
+    }
 }
 
 interface TasksService {
@@ -66,4 +76,7 @@ interface UserService {
 
     @PATCH("users")
     suspend fun update(@Body user: UserInfo): Response<UserInfo>
+
+    @POST("users/login")
+    suspend fun login(@Body user: UserLogin): Response<Token>
 }

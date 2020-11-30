@@ -11,7 +11,7 @@ data class UserInfo(@field:Json(name = "email") val email: String,
 
 
 //@JsonClass(generateAdapter = true)
-//data class UserForm(@field:Json(name = "user") val infoForm: UserInfoForm) : Serializable
+//data class UserLogin(@field:Json(name = "user") val infoForm: UserInfoForm) : Serializable
 //
 //@JsonClass(generateAdapter = true)
 //data class UserInfoForm(@field:Json(name = "avatar") @Part val avatar: MultipartBody.Part): Serializable

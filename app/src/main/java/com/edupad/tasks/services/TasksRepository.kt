@@ -4,7 +4,7 @@ import android.util.Log
 import com.edupad.tasks.models.Task
 
 class TasksRepository {
-    private val tasksService = TaskApi.tasksService
+    private val tasksService = Api.INSTANCE.tasksService
 
     suspend fun deleteTask(id: String): Boolean {
         val tasksResponse = tasksService.deleteTask(id)

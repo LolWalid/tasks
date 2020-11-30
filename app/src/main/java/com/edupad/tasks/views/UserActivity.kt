@@ -11,7 +11,7 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.bumptech.glide.Glide
 import com.edupad.tasks.R
-import com.edupad.tasks.services.TaskApi
+import com.edupad.tasks.services.Api
 import kotlinx.android.synthetic.main.activity_user.*
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -111,7 +111,7 @@ class UserActivity: AppCompatActivity() {
         // send Request to update User Avatar in Server
         imageBody?.let {
             GlobalScope.launch {
-                TaskApi.userService.updateAvatar(it)
+                Api.INSTANCE.userService.updateAvatar(it)
             }
         }
     }

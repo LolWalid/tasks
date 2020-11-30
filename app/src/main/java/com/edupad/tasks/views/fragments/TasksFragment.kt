@@ -16,7 +16,7 @@ import com.bumptech.glide.Glide
 import com.edupad.tasks.R
 import com.edupad.tasks.models.TasksViewModel
 import com.edupad.tasks.models.UserInfo
-import com.edupad.tasks.services.TaskApi
+import com.edupad.tasks.services.Api
 import kotlinx.android.synthetic.main.main_fragment_layout.*
 import kotlinx.android.synthetic.main.main_fragment_layout.view.*
 import kotlinx.coroutines.GlobalScope
@@ -56,14 +56,13 @@ class TasksFragment: Fragment() {
     private fun getInfo(): LiveData<UserInfo> {
         val userInfo = MutableLiveData<UserInfo>()
         GlobalScope.launch {
-            val response = TaskApi.userService.getInfo()
+            val response = Api.INSTANCE.userService.getInfo()
             Log.e("downloadImage", response.body().toString())
             if (response.isSuccessful) {
                 response.body()?.let {
                     userInfo.postValue(it)
-
-                    val u = UserInfo(it.email, it.firstname + "1", it.lastname, it.avatar)
-                    val response2 = TaskApi.userService.update(u)
+//                    val u = UserInfo(it.email, it.firstname + "1", it.lastname, it.avatar)
+//                    val response2 = Api.INSTANCE.userService.update(u)
                 }
             }
 
